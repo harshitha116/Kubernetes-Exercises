@@ -1,0 +1,60 @@
+
+pipeline {
+    agent any
+
+    
+stage('Build') {
+    steps {
+        echo 'Preparing Python application'
+        sh 'python3 --version'
+        sh 'python3 -m venv .venv'
+        sh '.venv/bin/python -m pip install --upgrade pip'
+        sh '.venv/bin/python -m pip install -r requirements.txt'
+    }
+}
+
+
+        
+        
+        
+stage('Test') {
+    steps {
+        echo 'Checking Jenkins workspace files...'
+        sh 'pwd'
+        sh 'ls -la'
+        sh 'find . -maxdepth 3 -type f'
+        sh '.venv/bin/python -m unittest test_app'
+    }
+}
+
+
+
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application to a local folder...'
+                sh '''
+                    mkdir -p "$WORKSPACE/python-app-deploy"
+                    cp app.py "$WORKSPACE/python-app-deploy/"
+                    cp requirements.txt "$WORKSPACE/python-app-deploy/"
+                '''
+            }
+        }
+
+        stage('Test Application') {
+            steps {
+                echo 'Checking the Flask application...'
+                sh 'python3 test_app.py'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the console output.'
+        }
+    }
+}

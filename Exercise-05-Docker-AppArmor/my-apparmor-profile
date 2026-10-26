@@ -1,0 +1,7 @@
+#include <tunables/global>
+
+profile my-apparmor-profile {
+    #include <abstractions/base>
+
+    deny capability sys_admin,
+}
